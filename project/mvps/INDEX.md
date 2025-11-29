@@ -3,10 +3,8 @@ This file serves as a directory listing for the files located in the `/mvps` fol
 ## Purpose
 The purpose of this INDEX.md file is to provide a centralized, accessible list of all the requirements-related files. This helps open-source contributors quickly identify and locate specific documentation, ensuring consistency and ease of collaboration across the project.
 
-### MVP001
-- [REQ_ID: Description]()
-- [REQ_ID: Description]()
-- [REQ_ID: Description]()
+### [MVP001](./MVP001.md)
+- [REQ202511272348: Provide Basic Access to LightRAG via HTTP Server](../requirements/REQ202511272348.md)
 
 ## Usage
 Contributors can use this index to:
