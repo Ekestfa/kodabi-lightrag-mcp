@@ -1,0 +1,9 @@
+[package]
+name = "kodabi_lightrag_mcp"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tokio = { version = "1.15", features = ["full"] }
+axum = { version = "0.7", features = ["json"] }
+serde = { version = "1.0", features = ["derive"] }
