@@ -1,0 +1,14 @@
+{
+    "rag_services": [
+        {
+            "rag_name": "software engineering",
+            "rag_ip": "host.docker.internal",
+            "rag_port": "9621"
+        },
+        {
+            "rag_name": "entrepreneur",
+            "rag_ip": "host.docker.internal",
+            "rag_port": "9622"
+        }
+    ]
+}
