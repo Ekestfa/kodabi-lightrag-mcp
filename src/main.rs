@@ -1,5 +1,4 @@
 use axum::{routing::get, Router};
-use dotenv::dotenv;
 use std::env;
 use tokio::net::TcpListener;
 
