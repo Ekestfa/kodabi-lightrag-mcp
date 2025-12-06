@@ -1,5 +1,5 @@
 {
-    "rag_services": [
+    "services": [
         {
             "rag_name": "software engineering",
             "rag_ip": "host.docker.internal",
