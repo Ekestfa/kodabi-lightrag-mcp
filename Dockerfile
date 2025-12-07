@@ -6,14 +6,18 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends pkg-config libssl-dev ca-certificates build-essential && \
     rm -rf /var/lib/apt/lists/*
 
+# Set runtime debug envs you want available
+ENV RUST_BACKTRACE=1
+ENV RUST_LOG=debug
+
 WORKDIR /app
 
 # Copy Cargo manifests first to leverage Docker layer cache for dependencies
 COPY Cargo.toml Cargo.lock ./
 
 # Create empty src to allow cargo to fetch deps (works even if workspace)
-RUN mkdir -p src && echo "fn main() {println!(\"dummy\");}" > src/main.rs && \
-    cargo fetch
+#RUN mkdir -p src && echo "fn main() {println!(\"dummy\");}" > src/main.rs && \
+#    cargo fetch
 
 # Now copy the full source and build a release binary
 COPY . .

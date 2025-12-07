@@ -12,10 +12,10 @@ pub enum HandlerError {
 impl fmt::Display for HandlerError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            HandlerError::ValidationFailed(msg) => write!(f, "Validation failed: {}", msg),
-            HandlerError::ReadFileFailed(msg) => write!(f, "Read file failed: {}", msg),
-            HandlerError::FileJsonParseFailed(msg) => write!(f, "Parse JSON file failed: {}", msg),
-            HandlerError::ProcessFailed(msg) => write!(f, "Process failed: {}", msg)
+            HandlerError::ValidationFailed(msg) => write!(f, "[HE]:Validation failed: {}", msg),
+            HandlerError::ReadFileFailed(msg) => write!(f, "[HE]:Read file failed: {}", msg),
+            HandlerError::FileJsonParseFailed(msg) => write!(f, "[HE]:Parse JSON file failed: {}", msg),
+            HandlerError::ProcessFailed(msg) => write!(f, "[HE]:Process failed: {}", msg)
         }
     }
 }

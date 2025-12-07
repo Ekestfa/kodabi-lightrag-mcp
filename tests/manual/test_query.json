@@ -1,9 +1,9 @@
 {
   "rag_name": "software engineering",
   "query": {
-    "query": "What is the capital of France?",
-    "mode": "LOCAL",
-    "only_need_context": false,
+    "query": "What is the rust struct best practices?",
+    "mode": "local",
+    "only_need_context": true,
     "only_need_prompt": false,
     "response_type": "Multiple Paragraph",
     "top_k": 40,

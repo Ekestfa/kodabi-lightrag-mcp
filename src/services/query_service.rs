@@ -1,10 +1,10 @@
-use async_trait::async_trait;
 use crate::errors::service_error::ServiceError;
 use crate::models::central_query::CentralQuery;
 use crate::models::query::{QueryResponse, RagQuery};
 use crate::models::rag_config::RagServices;
 use crate::traits::query_api::QueryApiHandler;
 use crate::traits::service_api::ServiceApiHandler;
+use async_trait::async_trait;
 
 #[async_trait]
 impl ServiceApiHandler for CentralQuery {
@@ -12,6 +12,7 @@ impl ServiceApiHandler for CentralQuery {
         &self,
         rag_services: &RagServices,
     ) -> Result<QueryResponse, ServiceError> {
+        println!("central_query called in service");
         if self.rag_name.is_empty() {
             return Err(ServiceError::ValidationFailed(format!(
                 "Rag service is empty: {}",
@@ -31,12 +32,12 @@ impl ServiceApiHandler for CentralQuery {
             rag_service: found_rag_service.unwrap(),
             query_request: self.query.clone(),
         };
-
+        println!("request object: {}", serde_json::to_string(&query_request).unwrap());
         let query_response = query_request.query().await;
 
         match query_response {
             Ok(contents) => Ok(contents),
-            Err(e) => Err(ServiceError::QueryFailed(format!("Query failed: {:?}", e))),
+            Err(e) => Err(ServiceError::QueryFailed(e.to_string())),
         }
     }
 }
