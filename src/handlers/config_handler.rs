@@ -69,6 +69,9 @@ mod tests {
         let result = fs::write(mock_config_path, mock_file_content)
             .map_err(|e| panic!("Failed to write valid JSON file: {}", e));
 
+        // Ensure the file was written successfully
+        assert!(result.is_ok());
+
         with_var(
             "KODABI_RAG_SERVICES_CONFIG",
             Some(&mock_config_path),
