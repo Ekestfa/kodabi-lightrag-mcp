@@ -1,0 +1,20 @@
+{
+  "rag_name": "software engineering",
+  "query": {
+    "query": "What is the rust struct best practices?",
+    "mode": "local",
+    "only_need_context": true,
+    "only_need_prompt": false,
+    "response_type": "Multiple Paragraph",
+    "top_k": 40,
+    "chunk_top_k": 20,
+    "max_entity_tokens": 6000,
+    "max_relation_tokens": 10000,
+    "max_total_tokens": 30000,
+    "conversation_history": [],
+    "user_prompt": "",
+    "enable_rerank": false,
+    "include_references": true,
+    "stream": false
+  }
+}

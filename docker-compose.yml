@@ -1,0 +1,40 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      # If your Dockerfile defines a final runtime stage named "runtime",
+      # use the target below to make sure compose uses that stage.
+      target: runtime
+    image: kodabi_lightrag_mcp:latest
+    env_file:
+      - .env
+    environment:
+      # Additional defaults — override in .env if needed
+      - RUST_BACKTRACE=1
+      - RUST_LOG=info
+      - KODABI_BASE_IP=0.0.0.0
+      - KODABI_BASE_PORT=${KODABI_BASE_PORT:-9699}
+      - KODABI_RAG_SERVICES_CONFIG=/app/rag_config.json
+    ports:
+      - "${KODABI_BASE_PORT:-9699}:${KODABI_BASE_PORT:-9699}"
+    volumes:
+      # Mount local rag_config.json into container (read-only). Adjust path as needed.
+      - ./rag_config.json:/app/rag_config.json:ro
+      # Optional: mount logs or other data directories here if needed:
+      # - ./data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      # This uses curl; ensure your runtime image includes curl or change to wget/nc.
+      test: ["CMD-SHELL", "curl --fail http://127.0.0.1:${KODABI_BASE_PORT:-9699}/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

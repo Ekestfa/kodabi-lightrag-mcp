@@ -1,4 +1,6 @@
 use serde:: {Serialize, Deserialize};
+use std::fmt;
+use std::str::FromStr;
 
 use crate::models::rag_config::Rag;
 
@@ -8,25 +10,27 @@ pub struct QueryResponseRefence {
 	pub file_path: String
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct RagQuery {
     pub rag_service: Rag,
     pub query_request: QueryRequest
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub enum ConversationHistoryRole<String> {
-    USER(String), // "user"
-    ASSISTANT(String) // "assistant"
+#[serde(rename_all = "lowercase")]
+pub enum ConversationHistoryRole {
+    USER,
+    ASSISTANT
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ConversationHistory {
-    role: ConversationHistoryRole<String>,
+    role: ConversationHistoryRole,
     content: String
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "lowercase")]
 pub enum QueryMode {
     LOCAL, // 0
     GLOBAL,
@@ -36,27 +40,31 @@ pub enum QueryMode {
     BYPASS // 6
 }
 
-impl QueryMode {
-    pub fn from_int(value: i32) -> Option<Self> {
-        match value {
-            0 => Some(QueryMode::LOCAL),
-            1 => Some(QueryMode::GLOBAL),
-            2 => Some(QueryMode::HYBRID),
-            3 => Some(QueryMode::NAIVE),
-            4 => Some(QueryMode::MIX),
-            5 => Some(QueryMode::BYPASS),
-            _ => None,
-        }
+impl fmt::Display for QueryMode {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", match self {
+            QueryMode::LOCAL => "local",
+            QueryMode::GLOBAL => "global",
+            QueryMode::HYBRID => "hybrid",
+            QueryMode::NAIVE => "naive",
+            QueryMode::MIX => "mix",
+            QueryMode::BYPASS => "bypass",
+        })
     }
+}
 
-    pub fn to_int(&self) -> i32 {
-        match self {
-            QueryMode::LOCAL => 0,
-            QueryMode::GLOBAL => 1,
-            QueryMode::HYBRID => 2,
-            QueryMode::NAIVE => 3,
-            QueryMode::MIX => 4,
-            QueryMode::BYPASS => 5,
+impl FromStr for QueryMode {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "local" => Ok(QueryMode::LOCAL),
+            "global" => Ok(QueryMode::GLOBAL),
+            "hybrid" => Ok(QueryMode::HYBRID),
+            "naive" => Ok(QueryMode::NAIVE),
+            "mix" => Ok(QueryMode::MIX),
+            "bypass" => Ok(QueryMode::BYPASS),
+            _ => Err(()),
         }
     }
 }

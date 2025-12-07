@@ -20,12 +20,18 @@ impl QueryApiHandler for RagQuery {
         }
 
         let url = format!(
-            "http://{}:{}",
+            "http://{}:{}/query",
             self.rag_service.rag_ip, self.rag_service.rag_port
+        );
+       
+        println!("Sending request to URL: {}", url);
+        println!(
+            "Request body: {}",
+            serde_json::to_string(&self.query_request).unwrap()
         );
 
         let client = Client::new();
-        // Build request with proper headers and body
+         // Build request with proper headers and body
         let response = client
             .post(&url)
             .json(&self.query_request)
@@ -40,6 +46,7 @@ impl QueryApiHandler for RagQuery {
             HandlerError::ProcessFailed(format!("Failed to read response body: {:?}", err))
         })?;
 
+        println!("Response body: {}", response_body);
         // Parse the JSON response into QueryResponse struct
         let query_response: QueryResponse =
             serde_json::from_str(&response_body).map_err(|err| {
@@ -53,6 +60,7 @@ impl QueryApiHandler for RagQuery {
     }
 }
 
+#[axum::debug_handler]
 pub async fn central_query_handler(
     Json(payload): axum::extract::Json<CentralQuery>,
 ) -> Result<axum::response::Json<QueryResponse>, (axum::http::StatusCode, String)> {

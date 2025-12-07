@@ -10,9 +10,9 @@ pub enum ServiceError {
 impl fmt::Display for ServiceError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            ServiceError::ValidationFailed(msg) => write!(f, "Validation failed: {}", msg),
-            ServiceError::NotFound(msg) => write!(f, "Not found: {}", msg),
-            ServiceError::QueryFailed(msg) => write!(f, "Query failed: {}", msg)
+            ServiceError::ValidationFailed(msg) => write!(f, "[SE]:Validation failed: {:?}", msg),
+            ServiceError::NotFound(msg) => write!(f, "[SE]:Not found: {:?}", msg),
+            ServiceError::QueryFailed(msg) => write!(f, "[SE]:Query failed: {:?}", msg)
         }
     }
 }
