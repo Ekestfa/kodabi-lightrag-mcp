@@ -12,7 +12,8 @@ dotenv = "0.15.0"
 tempfile = "3.0"
 serde_json = "1.0.145"
 async-trait = "0.1"
-rmcp = { version = "0.10.0", features = ["server"] }
+rmcp = { version = "0.10.0", features = ["transport-io", "server", "macros"] }
+schemars = "1.1.0"
 
 [dev-dependencies]
 temp-env = "0.3.6"

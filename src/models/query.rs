@@ -1,4 +1,5 @@
-use serde:: {Serialize, Deserialize};
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::str::FromStr;
 
@@ -6,30 +7,30 @@ use crate::models::rag_config::Rag;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct QueryResponseRefence {
-	pub reference_id: String,
-	pub file_path: String
+    pub reference_id: String,
+    pub file_path: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct RagQuery {
     pub rag_service: Rag,
-    pub query_request: QueryRequest
+    pub query_request: QueryRequest,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema)]
 #[serde(rename_all = "lowercase")]
 pub enum ConversationHistoryRole {
     USER,
-    ASSISTANT
+    ASSISTANT,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema)]
 pub struct ConversationHistory {
     role: ConversationHistoryRole,
-    content: String
+    content: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema)]
 #[serde(rename_all = "lowercase")]
 pub enum QueryMode {
     LOCAL, // 0
@@ -37,19 +38,23 @@ pub enum QueryMode {
     HYBRID,
     NAIVE,
     MIX,
-    BYPASS // 6
+    BYPASS, // 6
 }
 
 impl fmt::Display for QueryMode {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", match self {
-            QueryMode::LOCAL => "local",
-            QueryMode::GLOBAL => "global",
-            QueryMode::HYBRID => "hybrid",
-            QueryMode::NAIVE => "naive",
-            QueryMode::MIX => "mix",
-            QueryMode::BYPASS => "bypass",
-        })
+        write!(
+            f,
+            "{}",
+            match self {
+                QueryMode::LOCAL => "local",
+                QueryMode::GLOBAL => "global",
+                QueryMode::HYBRID => "hybrid",
+                QueryMode::NAIVE => "naive",
+                QueryMode::MIX => "mix",
+                QueryMode::BYPASS => "bypass",
+            }
+        )
     }
 }
 
@@ -85,99 +90,224 @@ pub struct QueryRequest {
     pub user_prompt: Option<String>,
     pub enable_rerank: Option<bool>,
     pub include_references: bool,
-    pub stream: Option<bool>
+    pub stream: Option<bool>,
 }
 
 impl QueryRequest {
-    /// Initializes optional fields in QueryRequest with default values
-    /// 
-    /// This method sets default values for optional fields in the QueryRequest struct
-    /// when they are not provided. This ensures that all fields have valid values
-    /// and prevents potential runtime errors from missing or null values.
+    /// Creates a new QueryRequest with all fields initialized to their default values
+    ///
+    /// This method initializes all fields with sensible default values, ensuring that
+    /// the struct is always in a valid state when constructed. It follows Rust best practices
+    /// by using a builder pattern and providing clear, readable default values.
     ///
     /// # Returns
-    /// A new QueryRequest with default values for optional fields
-    pub fn with_default_options(mut self) -> Self {
-        // Initialize only_need_context with default value (false)
-        if self.only_need_context.is_none() {
-            self.only_need_context = Some(false);
+    /// A new QueryRequest instance with all fields set to default values
+    pub fn new() -> Self {
+        Self {
+            query: String::new(),
+            mode: QueryMode::HYBRID,
+            only_need_context: None,
+            only_need_prompt: None,
+            response_type: "Multiple Paragraphs".to_string(),
+            top_k: 40,
+            chunk_top_k: 20,
+            max_entity_tokens: 6000,
+            max_relation_tokens: 10000,
+            max_total_tokens: 30000,
+            conversation_history: None,
+            user_prompt: None,
+            enable_rerank: None,
+            include_references: true,
+            stream: None,
         }
-        
-        // Initialize only_need_prompt with default value (false)
-        if self.only_need_prompt.is_none() {
-            self.only_need_prompt = Some(false);
-        }
-        
-        // Initialize conversation_history with empty vector if not provided
-        if self.conversation_history.is_none() {
-            self.conversation_history = Some(Vec::new());
-        }
-        
-        // Initialize user_prompt with empty string if not provided
-        if self.user_prompt.is_none() {
-            self.user_prompt = Some(String::new());
-        }
-        
-        // Initialize enable_rerank with default value (false)
-        if self.enable_rerank.is_none() {
-            self.enable_rerank = Some(false);
-        }
-        
-        // Initialize stream with default value (false)
-        if self.stream.is_none() {
-            self.stream = Some(false);
-        }
-        
+    }
+
+    /// Sets the query field and returns a mutable reference to self
+    ///
+    /// This method allows for fluent API construction by enabling method chaining.
+    /// It is designed to be used in conjunction with other builder methods.
+    ///
+    /// # Parameters
+    /// * `query` - The search query string
+    ///
+    /// # Returns
+    /// A mutable reference to the QueryRequest instance
+    pub fn with_query(mut self, query: String) -> Self {
+        self.query = query;
         self
     }
-    
-    /// Creates a new QueryRequest with all optional fields initialized to their defaults
+
+    /// Sets the mode field and returns a mutable reference to self
     ///
-    /// # Arguments
-    /// * `query` - The search query string
-    /// * `mode` - The query execution mode (LOCAL, GLOBAL, etc.)
-    /// * `response_type` - The expected response format
-    /// * `top_k` - Maximum number of results to return
-    /// * `chunk_top_k` - Maximum number of chunks per result
-    /// * `max_entity_tokens` - Maximum tokens for entity extraction
-    /// * `max_relation_tokens` - Maximum tokens for relation extraction
-    /// * `max_total_tokens` - Maximum total tokens for the response
+    /// This method allows for fluent API construction by enabling method chaining.
+    /// It is designed to be used in conjunction with other builder methods.
+    ///
+    /// # Parameters
+    /// * `mode` - The query mode (e.g., HYBRID, RAG, etc.)
     ///
     /// # Returns
-    /// A fully initialized QueryRequest with default values for optional fields
-    pub fn new(
-        query: String,
-        mode: QueryMode,
-        response_type: String,
-        top_k: i32,
-        chunk_top_k: i32,
-        max_entity_tokens: i32,
-        max_relation_tokens: i32,
-        max_total_tokens: i32
+    /// A mutable reference to the QueryRequest instance
+    pub fn with_mode(mut self, mode: QueryMode) -> Self {
+        self.mode = mode;
+        self
+    }
+
+    /// Sets the response type field and returns a mutable reference to self
+    ///
+    /// This method allows for fluent API construction by enabling method chaining.
+    /// It is designed to be used in conjunction with other builder methods.
+    ///
+    /// # Parameters
+    /// * `response_type` - The desired response format (e.g., "Multiple Paragraphs", "Bullet Points")
+    ///
+    /// # Returns
+    /// A mutable reference to the QueryRequest instance
+    pub fn with_response_type(mut self, response_type: impl Into<String>) -> Self {
+        self.response_type = response_type.into();
+        self
+    }
+
+    /// Sets the top_k field and returns a mutable reference to self
+    ///
+    /// This method allows for fluent API construction by enabling method chaining.
+    /// It is designed to be used in conjunction with other builder methods.
+    ///
+    /// # Parameters
+    /// * `top_k` - The number of top results to return
+    ///
+    /// # Returns
+    /// A mutable reference to the QueryRequest instance
+    pub fn with_top_k(mut self, top_k: i32) -> Self {
+        self.top_k = top_k;
+        self
+    }
+
+    /// Sets the chunk_top_k field and returns a mutable reference to self
+    ///
+    /// This method allows for fluent API construction by enabling method chaining.
+    /// It is designed to be used in conjunction with other builder methods.
+    ///
+    /// # Parameters
+    /// * `chunk_top_k` - The number of top results per chunk
+    ///
+    /// # Returns
+    /// A mutable reference to the QueryRequest instance
+    pub fn with_chunk_top_k(mut self, chunk_top_k: i32) -> Self {
+        self.chunk_top_k = chunk_top_k;
+        self
+    }
+
+    /// Sets the max_entity_tokens field and returns a mutable reference to self
+    ///
+    /// This method allows for fluent API construction by enabling method chaining.
+    /// It is designed to be used in conjunction with other builder methods.
+    ///
+    /// # Parameters
+    /// * `max_entity_tokens` - The maximum number of tokens for entity extraction
+    ///
+    /// # Returns
+    /// A mutable reference to the QueryRequest instance
+    pub fn with_max_entity_tokens(mut self, max_entity_tokens: i32) -> Self {
+        self.max_entity_tokens = max_entity_tokens;
+        self
+    }
+
+    /// Sets the max_relation_tokens field and returns a mutable reference to self
+    ///
+    /// This method allows for fluent API construction by enabling method chaining.
+    /// It is designed to be used in conjunction with other builder methods.
+    ///
+    /// # Parameters
+    /// * `max_relation_tokens` - The maximum number of tokens for relation extraction
+    ///
+    /// # Returns
+    /// A mutable reference to the QueryRequest instance
+    pub fn with_max_relation_tokens(mut self, max_relation_tokens: i32) -> Self {
+        self.max_relation_tokens = max_relation_tokens;
+        self
+    }
+
+    /// Sets the max_total_tokens field and returns a mutable reference to self
+    ///
+    /// This method allows for fluent API construction by enabling method chaining.
+    /// It is designed to be used in conjunction with other builder methods.
+    ///
+    /// # Parameters
+    /// * `max_total_tokens` - The maximum total number of tokens in the response
+    ///
+    /// # Returns
+    /// A mutable reference to the QueryRequest instance
+    pub fn with_max_total_tokens(mut self, max_total_tokens: i32) -> Self {
+        self.max_total_tokens = max_total_tokens;
+        self
+    }
+
+    /// Sets the conversation_history field and returns a mutable reference to self
+    ///
+    /// This method allows for fluent API construction by enabling method chaining.
+    /// It is designed to be used in conjunction with other builder methods.
+    ///
+    /// # Parameters
+    /// * `conversation_history` - The history of previous conversations
+    ///
+    /// # Returns
+    /// A mutable reference to the QueryRequest instance
+    pub fn with_conversation_history(
+        mut self,
+        conversation_history: Option<Vec<ConversationHistory>>,
     ) -> Self {
-        Self {
-            query,
-            mode,
-            only_need_context: Some(false),
-            only_need_prompt: Some(false),
-            response_type,
-            top_k,
-            chunk_top_k,
-            max_entity_tokens,
-            max_relation_tokens,
-            max_total_tokens,
-            conversation_history: Some(Vec::new()),
-            user_prompt: Some(String::new()),
-            enable_rerank: Some(false),
-            include_references: true,
-            stream: Some(false),
-        }
+        self.conversation_history = conversation_history;
+        self
+    }
+
+    /// Sets the user_prompt field and returns a mutable reference to self
+    ///
+    /// This method allows for fluent API construction by enabling method chaining.
+    /// It is designed to be used in conjunction with other builder methods.
+    ///
+    /// # Parameters
+    /// * `user_prompt` - The user's prompt for the query
+    ///
+    /// # Returns
+    /// A mutable reference to the QueryRequest instance
+    pub fn with_user_prompt(mut self, user_prompt: Option<String>) -> Self {
+        self.user_prompt = user_prompt;
+        self
+    }
+
+    /// Sets the enable_rerank field and returns a mutable reference to self
+    ///
+    /// This method allows for fluent API construction by enabling method chaining.
+    /// It is designed to be used in conjunction with other builder methods.
+    ///
+    /// # Parameters
+    /// * `enable_rerank` - Whether to enable reranking of results
+    ///
+    /// # Returns
+    /// A mutable reference to the QueryRequest instance
+    pub fn with_enable_rerank(mut self, enable_rerank: Option<bool>) -> Self {
+        self.enable_rerank = enable_rerank;
+        self
+    }
+
+    /// Sets the stream field and returns a mutable reference to self
+    ///
+    /// This method allows for fluent API construction by enabling method chaining.
+    /// It is designed to be used in conjunction with other builder methods.
+    ///
+    /// # Parameters
+    /// * `stream` - Whether to stream the response
+    ///
+    /// # Returns
+    /// A mutable reference to the QueryRequest instance
+    pub fn with_stream(mut self, stream: Option<bool>) -> Self {
+        self.stream = stream;
+        self
     }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct QueryResponse {
     pub response: String,
-    pub references: Vec<QueryResponseRefence>
+    pub references: Vec<QueryResponseRefence>,
 }
-
