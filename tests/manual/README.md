@@ -1,0 +1,2 @@
+**Query test**: `curl -v "http://127.0.0.1:9699/central/query" -H "Content-Type: application/json" -d @test_query.json`
+**MCP test**: `curl -v "http://127.0.0.1:9699/central/query" -H "Content-Type: application/json" -d @test_mcp.json`

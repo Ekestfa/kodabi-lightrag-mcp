@@ -1,15 +1,42 @@
+use crate::models::rag_mcp::LlmQueryRequest;
 use crate::models::rag_mcp::RagMcp;
-use rmcp::{tool_handler, model::{ServerCapabilities, ServerInfo}};
+use axum::{
+    Extension, Json as AxumJson
+};
+use reqwest::StatusCode;
+use rmcp::{
+    model::{ServerCapabilities, ServerInfo},
+    tool_handler,
+};
+use std::sync::Arc;
 
 #[tool_handler]
 impl rmcp::ServerHandler for RagMcp {
     fn get_info(&self) -> ServerInfo {
         ServerInfo {
-            instructions: Some("Provided LightRAG microservices capabilities that includes ".into()),
+            instructions: Some(
+                "Provided LightRAG microservices capabilities that includes ".into(),
+            ),
             capabilities: ServerCapabilities::builder().enable_tools().build(),
             ..Default::default()
         }
     }
+}
+
+#[axum::debug_handler]
+pub async fn mcp_info_handler(
+    Extension(rag_mcp): Extension<Arc<RagMcp>>,
+    AxumJson(payload): AxumJson<LlmQueryRequest>,
+) -> Result<axum::Json<rmcp::model::CallToolResult>, (StatusCode, String)> {
+        println!("Received MCP info request: {:?}", payload);
+    // Call the MCP tool wrapper and convert errors to HTTP 500.
+    let result = rag_mcp
+        .as_ref()
+        .call_ask_to_software_engineer(payload)
+        .await
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+
+    Ok(axum::Json(result))
 }
 
 // #[tool_handler]

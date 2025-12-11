@@ -12,8 +12,6 @@ use rmcp::model::{
     CallToolResult, Content};
 use rmcp::ErrorData as McpError;
 
-
-
 /// The main entry point for the RAG MCP server.
 impl RagMcp {
     /// Creates a new instance of the RAG MCP server.
@@ -58,18 +56,32 @@ impl RagMcp {
             rag_port: "9621".to_string(),
         };
 
+        println!("Dummy service configured!");
         // Build a list of RAG services
         let rag_services = RagServices {
             services: vec![dummy_rag],
         };
 
+        println!("Execute the central query against the RAG services");
         // Execute the central query against the RAG services
         let query_response = query_data
             .central_query(&rag_services)
             .await
             .map_err(|e| McpError::internal_error(e.to_string(), None))?;
 
+        println!("RAG service response received: {}", query_response.response);
         // Return success result with formatted response
         Ok(CallToolResult::success(vec![Content::text(query_response.response)]))
+    }
+
+        /// Public wrapper so external callers (e.g. HTTP handlers) can invoke the
+    /// MCP tool logic. This wraps the provided `LlmQueryRequest` into the
+    /// `Parameters` type and forwards the call to the private tool method.
+    pub async fn call_ask_to_software_engineer(
+        &self,
+        req: LlmQueryRequest,
+    ) -> Result<CallToolResult, McpError> {
+        let params = Parameters(req);
+        self.ask_to_software_engineer(params).await
     }
 }
