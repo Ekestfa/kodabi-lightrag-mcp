@@ -38,7 +38,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         // .layer(Extension(rag_config_path))
         .route("/health", get(|| async { "OK" }))
         .route("/central/query", post(central_query_handler))
-        .route("/mcp/info", post(mcp_info_handler))
+        .route("/mcp", post(mcp_info_handler))
         .layer(Extension(rag_mcp.clone()));
 
     // Start serving requests on the listener

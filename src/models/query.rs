@@ -106,7 +106,7 @@ impl QueryRequest {
         Self {
             query: String::new(),
             mode: QueryMode::HYBRID,
-            only_need_context: None,
+            only_need_context: Some(true),
             only_need_prompt: None,
             response_type: "Multiple Paragraphs".to_string(),
             top_k: 40,

@@ -1,4 +1,7 @@
 {
     "rag_name": "software engineering",
     "query": "Explain the SOLID principles",
+    "mode": null,
+    "user_prompt": null,
+    "history": null
 }
