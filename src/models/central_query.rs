@@ -3,7 +3,7 @@ use serde::de;
 use serde_json::Value;
 
 use crate::models::query::QueryRequest;
-use crate::models::rag_mcp::LlmQueryRequest;
+use crate::models::rag_mcp::RagQueryTool;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct CentralQuery {
@@ -15,7 +15,7 @@ pub struct CentralQuery {
 }
 
 impl CentralQuery {
-    pub fn from_llm_query_request(query: &LlmQueryRequest) -> Result<Self, String> {
+    pub fn from_llm_query_request(query: &RagQueryTool) -> Result<Self, String> {
         println!(
             "Transforming LlmQueryRequest to CentralQuery for RAG: {}",
             query.rag_name

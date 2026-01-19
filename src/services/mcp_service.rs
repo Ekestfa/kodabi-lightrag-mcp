@@ -1,5 +1,5 @@
 use crate::models::central_query::CentralQuery;
-use crate::models::rag_mcp::LlmQueryRequest;
+use crate::models::rag_mcp::RagQueryTool;
 use crate::models::rag_mcp::RagMcp;
 use crate::traits::service_api::ServiceApiHandler;
 use crate::models::rag_config::RagServices;
@@ -41,12 +41,12 @@ impl RagMcp {
         name = "software engineering rag query tool",
         description = "Asks the software engineering RAG service via MCP to process a query"
     )]
-    async fn ask_to_software_engineer(
+    pub async fn ask_to_software_engineer(
         &self,
-        query: Parameters<LlmQueryRequest>,
+        Parameters(args): Parameters<RagQueryTool>,
     ) -> Result<CallToolResult, McpError> {
         // Validate and convert the input query
-        let query_data = CentralQuery::from_llm_query_request(&query.0)
+        let query_data = CentralQuery::from_llm_query_request(&args)
             .map_err(|e| McpError::invalid_params(e, None))?;
 
         // Configure a dummy RAG service (in production, this would be dynamic)
@@ -72,16 +72,5 @@ impl RagMcp {
         println!("RAG service response received: {}", query_response.response);
         // Return success result with formatted response
         Ok(CallToolResult::success(vec![Content::text(query_response.response)]))
-    }
-
-        /// Public wrapper so external callers (e.g. HTTP handlers) can invoke the
-    /// MCP tool logic. This wraps the provided `LlmQueryRequest` into the
-    /// `Parameters` type and forwards the call to the private tool method.
-    pub async fn call_ask_to_software_engineer(
-        &self,
-        req: LlmQueryRequest,
-    ) -> Result<CallToolResult, McpError> {
-        let params = Parameters(req);
-        self.ask_to_software_engineer(params).await
     }
 }
