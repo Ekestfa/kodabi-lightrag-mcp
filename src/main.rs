@@ -37,8 +37,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .route("/health", get(|| async { "OK" }))
         .route("/central/query", post(central_query_handler))
         .route("/mcp", get(list_tools))
+    .route("/mcp/announcements", get(announcement_handler))
         .route("/tools/list", get(list_tools))
-        .route("/tools/call", post(mcp_info_handler))
+    .route("/mcp", post(mcp_info_handler))
         .layer(Extension(rag_mcp.clone()));
 
     // Start serving requests on the listener

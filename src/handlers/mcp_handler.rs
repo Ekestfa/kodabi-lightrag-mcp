@@ -39,6 +39,21 @@ impl rmcp::ServerHandler for RagMcp {
 
 #[axum::debug_handler]
 pub async fn mcp_info_handler(
+    let stream = tokio_stream::iter(vec![
+        format!("data: {{\"message_id\": \"123\", \"content\": \"Processing request...\", \"is_final\": false}}\
+"),
+        format!("data: {{\"message_id\": \"123\", \"content\": \"Querying database...\", \"is_final\": false}}\
+"),
+        format!("data: {{\"message_id\": \"123\", \"content\": \"Final result: Data retrieved\", \"is_final\": true}}\
+"),
+    ]);
+    let body = Body::from_stream(stream);
+    Response::builder()
+        .header("Content-Type", "text/event-stream")
+        .header("Cache-Control", "no-cache")
+        .header("Connection", "keep-alive")
+        .body(body)
+        .unwrap()
     Extension(rag_mcp): Extension<Arc<RagMcp>>,
     Json(payload): Json<RagQueryTool>,
 ) -> Result<axum::Json<rmcp::model::CallToolResult>, (StatusCode, String)> {
@@ -81,3 +96,4 @@ pub async fn list_tools() -> Json<Value> {
         }),
     )
 }
+async fn announcement_handler() -> Response {\n    let stream = tokio_stream::iter(vec![\n        format!("data: {{\\\"event\\\": \\\"cpu_alert\\\", \\\"message\\\": \\\"CPU usage 95%\\\"}}\\\n"),\n        format!("data: {{\\\"event\\\": \\\"new_message\\\", \\\"message\\\": \\\"User sent: Hello!\\\"}}\\\n"),\n    ]);\n    let body = Body::from_stream(stream);\n    Response::builder()\n        .header("Content-Type", "text/event-stream")\n        .header("Cache-Control", "no-cache")\n        .header("Connection", "keep-alive")\n        .body(body)\n        .unwrap()\n}
